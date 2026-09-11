@@ -9,20 +9,41 @@ const {
   getRiskEvents,
 } = require("../controllers/reportController");
 
+const { protect, authorize } = require("../middleware/authMiddleware");
+
 const router = express.Router();
 
-// Reports
+// Create report
 router.post("/", createReport);
 
-router.get("/", getReports);
+// Coordinator/Admin only
+router.get("/", protect, authorize("COORDINATOR", "ADMIN"), getReports);
 
-router.get("/:id", getReportById);
+// Coordinator/Admin only
+router.get("/:id", protect, authorize("COORDINATOR", "ADMIN"), getReportById);
 
-router.patch("/:id/status", updateReportStatus);
+// Coordinator/Admin only
+router.patch(
+  "/:id/status",
+  protect,
+  authorize("COORDINATOR", "ADMIN"),
+  updateReportStatus,
+);
 
-// Risk events
-router.post("/:id/risk-events", addRiskEvent);
+// Coordinator/Admin only
+router.post(
+  "/:id/risk-events",
+  protect,
+  authorize("COORDINATOR", "ADMIN"),
+  addRiskEvent,
+);
 
-router.get("/:id/risk-events", getRiskEvents);
+// Coordinator/Admin only
+router.get(
+  "/:id/risk-events",
+  protect,
+  authorize("COORDINATOR", "ADMIN"),
+  getRiskEvents,
+);
 
 module.exports = router;

@@ -7,12 +7,14 @@ const {
 
 const upload = require("../middleware/uploadMiddleware");
 
+const { protect, authorize } = require("../middleware/authMiddleware");
+
 const router = express.Router();
 
-// Upload evidence
+// Evidence upload
 router.post("/:id", upload.single("evidence"), uploadEvidence);
 
-// Get evidence
-router.get("/:id", getEvidence);
+// Coordinator/Admin can view evidence
+router.get("/:id", protect, authorize("COORDINATOR", "ADMIN"), getEvidence);
 
 module.exports = router;

@@ -17,6 +17,8 @@ const User = require("./user")(sequelize, DataTypes);
 const Report = require("./report")(sequelize, DataTypes);
 const RiskEvent = require("./riskevent")(sequelize, DataTypes);
 const Evidence = require("./evidence")(sequelize, DataTypes);
+const HelpRequest = require("./helpRequest")(sequelize, DataTypes);
+const SupportMessage = require("./supportMessage")(sequelize, DataTypes);
 
 const db = {
   sequelize,
@@ -25,6 +27,8 @@ const db = {
   Report,
   RiskEvent,
   Evidence,
+  HelpRequest,
+  SupportMessage,
 };
 
 // Set up relationships
@@ -32,5 +36,7 @@ User.associate(db);
 Report.associate(db);
 RiskEvent.associate(db);
 Evidence.associate(db);
+HelpRequest.associate(db);
+SupportMessage.associate(db);
 
 module.exports = db;

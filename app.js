@@ -4,6 +4,7 @@ require("dotenv").config();
 
 const authRoutes = require("./routes/authRoutes");
 const reportRoutes = require("./routes/reportRoutes");
+const evidenceRoutes = require("./routes/evidenceRoutes");
 
 const app = express();
 
@@ -19,8 +20,11 @@ app.get("/", (req, res) => {
   });
 });
 
+app.use("/uploads", express.static("uploads"));
+
 // API routes
 app.use("/api/auth", authRoutes);
 app.use("/api/reports", reportRoutes);
+app.use("/api/evidence", evidenceRoutes);
 
 module.exports = app;

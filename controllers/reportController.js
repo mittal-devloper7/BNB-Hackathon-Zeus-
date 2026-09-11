@@ -1,4 +1,4 @@
-const { Report, RiskEvent } = require("../models");
+const { Report, RiskEvent, Evidence } = require("../models");
 
 // CREATE REPORT
 const createReport = async (req, res) => {
@@ -87,6 +87,10 @@ const getReportById = async (req, res) => {
         {
           model: RiskEvent,
           as: "riskEvents",
+        },
+        {
+          model: Evidence,
+          as: "evidence",
         },
       ],
     });

@@ -1,4 +1,4 @@
-const { Sequelize } = require("sequelize");
+const { Sequelize, DataTypes } = require("sequelize");
 require("dotenv").config();
 
 const sequelize = new Sequelize(
@@ -13,4 +13,21 @@ const sequelize = new Sequelize(
   },
 );
 
-module.exports = sequelize;
+const User = require("./user")(sequelize, DataTypes);
+const Report = require("./report")(sequelize, DataTypes);
+const RiskEvent = require("./riskevent")(sequelize, DataTypes);
+
+const db = {
+  sequelize,
+  Sequelize,
+  User,
+  Report,
+  RiskEvent,
+};
+
+// Set up relationships
+User.associate(db);
+Report.associate(db);
+RiskEvent.associate(db);
+
+module.exports = db;

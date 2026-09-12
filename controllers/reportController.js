@@ -1,5 +1,11 @@
 const { Report, RiskEvent, Evidence } = require("../models");
 
+const isCoordinator = (user) =>
+  user?.role === "COORDINATOR" || user?.role === "ADMIN";
+
+const accessibleReportWhere = (user) =>
+  isCoordinator(user) ? {} : { userId: user.id };
+
 // CREATE REPORT
 const createReport = async (req, res) => {
   try {
@@ -21,8 +27,9 @@ const createReport = async (req, res) => {
       });
     }
 
-    // If anonymous, don't associate the report with a user
-    const userId = anonymous ? null : req.user ? req.user.id : null;
+    // Keep an internal owner for authorization. Anonymous controls disclosure,
+    // not whether the reporter can later access their own report.
+    const userId = req.user.id;
 
     const report = await Report.create({
       userId,
@@ -53,6 +60,7 @@ const createReport = async (req, res) => {
 const getReports = async (req, res) => {
   try {
     const reports = await Report.findAll({
+      where: accessibleReportWhere(req.user),
       include: [
         {
           model: RiskEvent,
@@ -82,7 +90,8 @@ const getReportById = async (req, res) => {
   try {
     const { id } = req.params;
 
-    const report = await Report.findByPk(id, {
+    const report = await Report.findOne({
+      where: { id, ...accessibleReportWhere(req.user) },
       include: [
         {
           model: RiskEvent,
@@ -137,8 +146,9 @@ const updateReportStatus = async (req, res) => {
       });
     }
 
-    const report = await Report.findByPk(id);
-
+    const report = await Report.findOne({
+      where: { id, ...accessibleReportWhere(req.user) },
+    });
     if (!report) {
       return res.status(404).json({
         success: false,
@@ -178,7 +188,9 @@ const addRiskEvent = async (req, res) => {
       });
     }
 
-    const report = await Report.findByPk(id);
+    const report = await Report.findOne({
+      where: { id, ...accessibleReportWhere(req.user) },
+    });
 
     if (!report) {
       return res.status(404).json({
@@ -214,7 +226,9 @@ const getRiskEvents = async (req, res) => {
   try {
     const { id } = req.params;
 
-    const report = await Report.findByPk(id);
+    const report = await Report.findOne({
+      where: { id, ...accessibleReportWhere(req.user) },
+    });
 
     if (!report) {
       return res.status(404).json({

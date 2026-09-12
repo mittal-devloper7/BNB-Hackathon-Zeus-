@@ -44,7 +44,10 @@ const analyzeThreatRequest = async (req, res) => {
 
     // Create report
     const report = await Report.create({
-      userId: anonymous ? null : req.user ? req.user.id : null,
+      // Keep an internal owner so the authenticated reporter can later access
+      // only their own reports. The anonymous flag continues to control what
+      // is exposed in report views; no user object is included in responses.
+      userId: req.user.id,
 
       riskScore: result.riskScore,
 
@@ -84,10 +87,18 @@ const analyzeThreatRequest = async (req, res) => {
 
         category,
 
+        description: report.description,
+
+        anonymous: report.anonymous,
+
+        signals,
+
         requiresImmediateAttention,
       },
 
       reportId: report.id,
+
+      report,
 
       signals,
     });

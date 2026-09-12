@@ -15,10 +15,26 @@ const app = express();
 // Security headers
 app.use(helmet());
 
-// CORS
+// CORS: development and deployed frontend origins are configured outside code.
+const configuredOrigins = [
+  process.env.FRONTEND_ORIGIN || "http://localhost:5173",
+  process.env.EXTENSION_ORIGIN,
+]
+  .filter(Boolean)
+  .join(",")
+  .split(",")
+  .map((origin) => origin.trim())
+  .filter(Boolean);
+
 app.use(
   cors({
-    origin: "*",
+    origin(origin, callback) {
+      // Requests without an Origin header are server-to-server or local tooling.
+      if (!origin || configuredOrigins.includes(origin))
+        return callback(null, true);
+      return callback(new Error("Origin is not allowed by CORS"));
+    },
+    credentials: true,
   }),
 );
 

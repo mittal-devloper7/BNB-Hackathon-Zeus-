@@ -11,10 +11,9 @@ const { protect, authorize } = require("../middleware/authMiddleware");
 
 const router = express.Router();
 
-// Evidence upload
-router.post("/:id", upload.single("evidence"), uploadEvidence);
+// Upload and read evidence only through an authenticated, authorized report.
+router.post("/:id", protect, upload.single("evidence"), uploadEvidence);
 
-// Coordinator/Admin can view evidence
-router.get("/:id", protect, authorize("COORDINATOR", "ADMIN"), getEvidence);
+router.get("/:id", protect, getEvidence);
 
 module.exports = router;

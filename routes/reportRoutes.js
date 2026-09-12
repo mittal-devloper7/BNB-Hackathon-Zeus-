@@ -19,6 +19,7 @@ const router = express.Router();
 // Create report
 router.post(
   "/",
+  protect,
   reportLimiter,
   [
     body("riskScore")
@@ -57,11 +58,11 @@ router.post(
   createReport,
 );
 
-// Coordinator/Admin only
-router.get("/", protect, authorize("COORDINATOR", "ADMIN"), getReports);
+// Every signed-in user may read only reports they are authorized to view.
+router.get("/", protect, getReports);
 
-// Coordinator/Admin only
-router.get("/:id", protect, authorize("COORDINATOR", "ADMIN"), getReportById);
+// Every signed-in user may read only reports they are authorized to view.
+router.get("/:id", protect, getReportById);
 
 // Coordinator/Admin only
 router.patch(
@@ -79,12 +80,6 @@ router.post(
   addRiskEvent,
 );
 
-// Coordinator/Admin only
-router.get(
-  "/:id/risk-events",
-  protect,
-  authorize("COORDINATOR", "ADMIN"),
-  getRiskEvents,
-);
+router.get("/:id/risk-events", protect, getRiskEvents);
 
 module.exports = router;

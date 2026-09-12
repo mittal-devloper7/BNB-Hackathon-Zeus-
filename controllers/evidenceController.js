@@ -1,11 +1,16 @@
 const { Report, Evidence } = require("../models");
 
+const accessibleReportWhere = (user) =>
+  user?.role === "COORDINATOR" || user?.role === "ADMIN" ? {} : { userId: user.id };
+
 const uploadEvidence = async (req, res) => {
   try {
     const { id } = req.params;
 
     // Check whether report exists
-    const report = await Report.findByPk(id);
+    const report = await Report.findOne({
+      where: { id, ...accessibleReportWhere(req.user) },
+    });
 
     if (!report) {
       return res.status(404).json({
@@ -50,7 +55,9 @@ const getEvidence = async (req, res) => {
   try {
     const { id } = req.params;
 
-    const report = await Report.findByPk(id);
+    const report = await Report.findOne({
+      where: { id, ...accessibleReportWhere(req.user) },
+    });
 
     if (!report) {
       return res.status(404).json({

@@ -5,6 +5,7 @@ const app = require("./app");
 const { sequelize, SupportMessage } = require("./models");
 
 const { Server } = require("socket.io");
+const jwt = require("jsonwebtoken");
 
 require("dotenv").config();
 
@@ -18,10 +19,38 @@ const startServer = async () => {
 
     const server = http.createServer(app);
 
+    const socketOrigins = [
+      process.env.FRONTEND_ORIGIN || "http://localhost:5173",
+      process.env.EXTENSION_ORIGIN,
+    ]
+      .filter(Boolean)
+      .join(",")
+      .split(",")
+      .map((origin) => origin.trim())
+      .filter(Boolean);
+
     const io = new Server(server, {
       cors: {
-        origin: "*",
+        origin: socketOrigins,
+        credentials: true,
       },
+    });
+
+    // A help request may be anonymous, but an authenticated sender must never
+    // be able to impersonate another user by supplying an arbitrary senderId.
+    io.use((socket, next) => {
+      const token = socket.handshake.auth?.token;
+      if (!token) {
+        socket.user = null;
+        return next();
+      }
+
+      try {
+        socket.user = jwt.verify(token, process.env.JWT_SECRET);
+        return next();
+      } catch (error) {
+        return next(new Error("Invalid or expired token"));
+      }
     });
 
     io.on("connection", (socket) => {
@@ -38,7 +67,7 @@ const startServer = async () => {
           const savedMessage = await SupportMessage.create({
             helpRequestId: data.helpRequestId,
 
-            senderId: data.senderId || null,
+            senderId: socket.user?.id || null,
 
             message: data.message,
           });

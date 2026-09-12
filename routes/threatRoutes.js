@@ -2,9 +2,10 @@ const express = require("express");
 
 const { analyzeThreatRequest } = require("../controllers/threatController");
 
+const { threatLimiter } = require("../middleware/rateLimitMiddleware");
+
 const router = express.Router();
 
-// Threat analysis
-router.post("/analyze", analyzeThreatRequest);
+router.post("/analyze", threatLimiter, analyzeThreatRequest);
 
 module.exports = router;

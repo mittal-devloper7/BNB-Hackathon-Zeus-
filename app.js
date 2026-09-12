@@ -1,5 +1,6 @@
 const express = require("express");
 const cors = require("cors");
+const helmet = require("helmet");
 require("dotenv").config();
 
 const authRoutes = require("./routes/authRoutes");
@@ -11,19 +12,26 @@ const threatRoutes = require("./routes/threatRoutes");
 
 const app = express();
 
-app.use(cors());
-app.use(express.json());
-app.use(express.urlencoded({ extended: true }));
+// Security headers
+app.use(helmet());
 
-// Home
+// CORS
+app.use(
+  cors({
+    origin: "*",
+  }),
+);
+
+// Body size limit
+app.use(express.json({ limit: "100kb" }));
+app.use(express.urlencoded({ extended: true, limit: "100kb" }));
+
+// Root route
 app.get("/", (req, res) => {
   res.json({
-    success: true,
-    message: "BalRaksha Backend is running",
+    message: "BalRaksha Backend API is running",
   });
 });
-
-app.use("/uploads", express.static("uploads"));
 
 // API routes
 app.use("/api/auth", authRoutes);
@@ -32,5 +40,15 @@ app.use("/api/evidence", evidenceRoutes);
 app.use("/api/coordinator", coordinatorRoutes);
 app.use("/api/help", helpRoutes);
 app.use("/api/threat", threatRoutes);
+
+// Global error handler
+app.use((err, req, res, next) => {
+  console.error(err.message);
+
+  res.status(err.status || 500).json({
+    success: false,
+    message: err.message || "Internal server error",
+  });
+});
 
 module.exports = app;

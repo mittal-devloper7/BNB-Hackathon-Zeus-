@@ -7,6 +7,7 @@ const reportRoutes = require("./routes/reportRoutes");
 const evidenceRoutes = require("./routes/evidenceRoutes");
 const coordinatorRoutes = require("./routes/coordinatorRoutes");
 const helpRoutes = require("./routes/helpRoutes");
+const threatRoutes = require("./routes/threatRoutes");
 
 const app = express();
 
@@ -30,5 +31,6 @@ app.use("/api/reports", reportRoutes);
 app.use("/api/evidence", evidenceRoutes);
 app.use("/api/coordinator", coordinatorRoutes);
 app.use("/api/help", helpRoutes);
+app.use("/api/threat", threatRoutes);
 
 module.exports = app;
